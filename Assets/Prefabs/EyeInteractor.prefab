@@ -125,7 +125,7 @@ MonoBehaviour:
   ApplyPosition: 1
   ApplyRotation: 1
   ReferenceFrame: {fileID: 0}
-  TrackingMode: 2
+  TrackingMode: 1
 --- !u!120 &6419913867377579705
 LineRenderer:
   serializedVersion: 2

@@ -19,26 +19,40 @@ public class EyeTrackingRay : MonoBehaviour
     [SerializeField]
     private Color rayColorHoverState = Color.red;
 
-    private LineRenderer lineRenderer;
+    private LineRenderer circleRenderer;
 
-    private List<EyeInteractable> eyeInteractables = new List<EyeInteractable>();
+    public List<EyeInteractable> eyeInteractables = new List<EyeInteractable>();
+
     // Start is called before the first frame update
     void Start()
     {
-        lineRenderer = GetComponent<LineRenderer>();
-        SetupRay();
+        circleRenderer = GetComponent<LineRenderer>();
+        DrawCircle(100, 0.1f);
     }
 
-    void SetupRay()
+    void DrawCircle(int steps, float radius)
     {
-        lineRenderer.useWorldSpace = false;
-        lineRenderer.positionCount = 2;
-        lineRenderer.startWidth = rayWidth;
-        lineRenderer.endWidth = rayWidth;
-        lineRenderer.startColor = rayColorDefaultState;
-        lineRenderer.endColor = rayColorDefaultState;
-        lineRenderer.SetPosition(0, transform.position);
-        lineRenderer.SetPosition(1, new Vector3(transform.position.x, transform.position.y, transform.position.z + rayDistance));
+        circleRenderer.useWorldSpace = false;
+        circleRenderer.positionCount = steps;
+        circleRenderer.startColor = rayColorDefaultState;
+        circleRenderer.endColor = rayColorDefaultState;
+
+        for (int currentStep = 0; currentStep < steps; currentStep++)
+        {
+            float circumferenceProgress = (float)currentStep / steps;
+
+            float currentRadian = circumferenceProgress * 2 * Mathf.PI;
+
+            float xScaled = Mathf.Cos(currentRadian);
+            float yScaled = Mathf.Sin(currentRadian);
+
+            float x = xScaled * radius;
+            float y = yScaled * radius;
+
+            Vector3 currentPosition = new Vector3(x, y, rayDistance) + transform.position;
+
+            circleRenderer.SetPosition(currentStep, currentPosition);
+        }
     }
 
     void FixedUpdate()
@@ -48,16 +62,16 @@ public class EyeTrackingRay : MonoBehaviour
         if (Physics.Raycast(transform.position, rayCastDirection, out hit, Mathf.Infinity, layersToInclude))
         {
             UnSelect();
-            lineRenderer.startColor = rayColorHoverState;
-            lineRenderer.endColor = rayColorHoverState;
+            circleRenderer.startColor = rayColorHoverState;
+            circleRenderer.endColor = rayColorHoverState;
             var eyeInteractable = hit.transform.GetComponent<EyeInteractable>();
             eyeInteractables.Add(eyeInteractable);
             eyeInteractable.IsHovered = true;
         }
         else
         {
-            lineRenderer.startColor = rayColorDefaultState;
-            lineRenderer.endColor = rayColorDefaultState;
+            circleRenderer.startColor = rayColorDefaultState;
+            circleRenderer.endColor = rayColorDefaultState;
             UnSelect(true);
         }
     }
